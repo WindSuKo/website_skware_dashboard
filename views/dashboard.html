@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark"><head><title>SKWARE STUDIO | Dashboard</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>tailwind.config={darkMode:"class",theme:{extend:{colors:{skred:"#ef4444",skdark:"#050505",skcard:"#0f0f0f",skcardhover:"#171717",skborder:"#262626"},fontFamily:{orbitron:["Orbitron","sans-serif"],inter:["Inter","sans-serif"]},boxShadow:{neon:"0 0 25px rgba(239,68,68,.4)","neon-lg":"0 0 50px rgba(239,68,68,.6)"}}}}</script>
+<style>body{font-family:Inter,sans-serif;background:#050505;color:#f3f4f6}.font-brand{font-family:Orbitron,sans-serif}.bg-grid{background-size:40px 40px;background-image:linear-gradient(to right,rgba(239,68,68,.03) 1px,transparent 1px),linear-gradient(to bottom,rgba(239,68,68,.03) 1px,transparent 1px)}.glow-text{text-shadow:0 0 20px rgba(239,68,68,.6),0 0 40px rgba(239,68,68,.3)}.inp{width:100%;background:#000;border:1px solid #262626;border-radius:.75rem;padding:.75rem 1rem;color:#fff;outline:none;transition:.2s}.inp:focus{border-color:#ef4444;box-shadow:0 0 15px rgba(239,68,68,.15)}</style>
+</head>
+<body class="min-h-screen bg-grid relative selection:bg-red-600">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-red-600/10 rounded-full blur-[150px] pointer-events-none"></div>
+
+<header class="sticky top-0 z-50 py-4 px-6 md:px-12 flex justify-between items-center border-b border-skborder/40 backdrop-blur-xl bg-skdark/80">
+  <div class="flex items-center space-x-3">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center shadow-neon"><i class="fa-solid fa-crown text-white"></i></div>
+    <span class="font-brand font-black text-lg tracking-wider">SKWARE <span class="text-red-500">STUDIO</span></span>
+  </div>
+  <div class="flex items-center space-x-4">
+    <span id="me" class="hidden sm:inline text-xs text-gray-400"></span>
+    <button onclick="logout()" class="px-4 py-2 rounded-xl bg-skcard hover:bg-skcardhover border border-skborder font-brand font-bold text-xs"><i class="fa-solid fa-power-off text-red-500 mr-2"></i>DÉCONNEXION</button>
+  </div>
+</header>
+
+<main class="relative z-10 max-w-6xl mx-auto px-6 py-12 space-y-8">
+  <h1 class="font-brand font-black text-3xl">GESTION DES <span class="text-red-500 glow-text">CLÉS</span></h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-skcard/90 border border-skborder rounded-2xl p-5"><div id="s-total" class="font-brand font-black text-2xl text-red-500">0</div><div class="text-xs text-gray-500">Clés actives</div></div>
+    <div class="bg-skcard/90 border border-skborder rounded-2xl p-5"><div id="s-soon" class="font-brand font-black text-2xl text-white">0</div><div class="text-xs text-gray-500">Expirent dans -24h</div></div>
+    <div class="bg-skcard/90 border border-skborder rounded-2xl p-5"><div class="font-brand font-black text-2xl text-red-500">SKW-</div><div class="text-xs text-gray-500">Format : SKW-XXXX-XXXX-XXXX</div></div>
+  </div>
+
+  <div class="bg-skcard/90 border border-skborder rounded-3xl p-6 relative overflow-hidden">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-rose-500 to-red-800"></div>
+    <h2 class="font-brand font-bold text-lg mb-4">CRÉER UNE CLÉ</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <select id="c-dur" class="inp">
+        <option value="30s">30 secondes (test)</option><option value="life">À vie</option><option value="1d">1 jour</option><option value="3d">3 jours</option><option value="7d">7 jours</option>
+        <option value="1m">1 mois</option><option value="3m">3 mois</option>
+      </select>
+      <input id="c-note" class="inp md:col-span-2" maxlength="60" placeholder="Note (pseudo, discord…) — optionnel">
+      <button onclick="createKey()" class="py-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 font-brand font-bold text-sm shadow-neon hover:shadow-neon-lg transition-all"><i class="fa-solid fa-plus mr-2"></i>GÉNÉRER</button>
+    </div>
+  </div>
+
+  <div class="bg-skcard/90 border border-skborder rounded-3xl overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="text-xs text-gray-500 uppercase border-b border-skborder"><tr>
+          <th class="text-left p-4">Clé</th><th class="text-left p-4">Durée</th><th class="text-left p-4">Note</th><th class="text-left p-4">Temps restant</th><th class="text-right p-4">Actions</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="empty" class="hidden p-10 text-center text-gray-500 text-sm">Aucune clé active !</div>
+  </div>
+</main>
+
+<div id="modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center px-6">
+  <div class="w-full max-w-md bg-skcard border border-skborder rounded-3xl p-6 space-y-4">
+    <h3 class="font-brand font-bold text-lg">MODIFIER LA CLÉ</h3>
+    <div id="m-key" class="font-mono text-red-400 text-sm"></div>
+    <select id="m-dur" class="inp"><option value="">Garder la durée actuelle</option><option value="30s">30 secondes (test)</option><option value="life">À vie</option><option value="1d">1 jour</option><option value="3d">3 jours</option><option value="7d">7 jours</option><option value="1m">1 mois</option><option value="3m">3 mois</option></select>
+    <p class="text-xs text-gray-500">Si tu changes la durée, le compteur repart à zéro depuis maintenant.</p>
+    <input id="m-note" class="inp" maxlength="60" placeholder="Note">
+    <div class="flex gap-3">
+      <button onclick="closeModal()" class="flex-1 py-3 rounded-xl bg-black border border-skborder font-brand font-bold text-xs">ANNULER</button>
+      <button onclick="saveEdit()" class="flex-1 py-3 rounded-xl bg-red-600 hover:bg-red-500 font-brand font-bold text-xs shadow-neon">ENREGISTRER</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let keys = [], editing = null;
+const LABEL = {'30s':'30 sec (test)','life':'À vie','1d':'1 jour','3d':'3 jours','7d':'7 jours','1m':'1 mois','3m':'3 mois'};
+const api = async (url, method='GET', body) => {
+  const r = await fetch(url, {method, headers:{'Content-Type':'application/json'}, body: body && JSON.stringify(body)});
+  if (r.status === 401) return location.href = '/login.html';
+  return r.json();
+};
+const esc = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fmt(ms) {
+  if (ms === null) return '∞ À vie';
+  if (ms <= 0) return 'Expirée';
+  const s = Math.floor(ms/1000), d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60);
+  return d ? d+'j '+h+'h '+m+'m' : h ? h+'h '+m+'m '+(s%60)+'s' : m+'m '+(s%60)+'s';
+}
+function render() {
+  const now = Date.now();
+  document.getElementById('s-total').textContent = keys.length;
+  document.getElementById('s-soon').textContent = keys.filter(k => k.expiresAt !== null && k.expiresAt - now < 86400000).length;
+  document.getElementById('empty').classList.toggle('hidden', keys.length > 0);
+  document.getElementById('rows').innerHTML = keys.map(k => {
+    const left = k.expiresAt === null ? null : k.expiresAt - now, warn = left !== null && left < 86400000;
+    return '<tr class="border-b border-skborder/60 hover:bg-skcardhover/50">'
+      + '<td class="p-4 font-mono text-red-400 font-semibold whitespace-nowrap">' + esc(k.key) + '</td>'
+      + '<td class="p-4"><span class="text-xs font-bold px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">' + LABEL[k.duration] + '</span></td>'
+      + '<td class="p-4 text-gray-400">' + esc(k.note) + '</td>'
+      + '<td class="p-4 text-xs font-bold ' + (warn ? 'text-amber-400' : left === null ? 'text-red-400' : 'text-emerald-400') + '" data-exp="' + k.expiresAt + '">' + fmt(left) + '</td>'
+      + '<td class="p-4 text-right whitespace-nowrap space-x-2">'
+      + '<button onclick="copyKey(\'' + k.key + '\')" title="Copier" class="w-9 h-9 rounded-lg bg-black border border-skborder hover:border-red-500"><i class="fa-regular fa-copy"></i></button>'
+      + '<button onclick="openEdit(\'' + k.key + '\')" title="Modifier" class="w-9 h-9 rounded-lg bg-black border border-skborder hover:border-red-500"><i class="fa-solid fa-pen text-amber-400"></i></button>'
+      + '<button onclick="del(\'' + k.key + '\')" title="Supprimer" class="w-9 h-9 rounded-lg bg-black border border-skborder hover:border-red-500"><i class="fa-solid fa-trash text-red-500"></i></button>'
+      + '</td></tr>';
+  }).join('');
+}
+async function load() { keys = await api('/api/keys'); render(); }
+async function createKey() {
+  await api('/api/keys', 'POST', {duration: document.getElementById('c-dur').value, note: document.getElementById('c-note').value});
+  document.getElementById('c-note').value = ''; load();
+}
+async function del(k) { if (confirm('Supprimer ' + k + ' ?')) { await api('/api/keys/' + k, 'DELETE'); load(); } }
+function copyKey(k) { navigator.clipboard.writeText(k); }
+function openEdit(k) {
+  editing = keys.find(x => x.key === k);
+  document.getElementById('m-key').textContent = k;
+  document.getElementById('m-dur').value = '';
+  document.getElementById('m-note').value = editing.note || '';
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+async function saveEdit() {
+  const body = {note: document.getElementById('m-note').value};
+  const d = document.getElementById('m-dur').value; if (d) body.duration = d;
+  await api('/api/keys/' + editing.key, 'PUT', body); closeModal(); load();
+}
+async function logout() { await api('/api/logout', 'POST'); location.href = '/login.html'; }
+
+api('/api/me').then(u => document.getElementById('me').textContent = u.email);
+load();
+setInterval(render, 1000);
+setInterval(load, 30000);
+</script></body></html>

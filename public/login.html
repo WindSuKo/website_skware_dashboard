@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark"><head><title>SKWARE STUDIO | Connexion</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>tailwind.config={darkMode:"class",theme:{extend:{colors:{skred:"#ef4444",skdark:"#050505",skcard:"#0f0f0f",skcardhover:"#171717",skborder:"#262626"},fontFamily:{orbitron:["Orbitron","sans-serif"],inter:["Inter","sans-serif"]},boxShadow:{neon:"0 0 25px rgba(239,68,68,.4)","neon-lg":"0 0 50px rgba(239,68,68,.6)"}}}}</script>
+<style>body{font-family:Inter,sans-serif;background:#050505;color:#f3f4f6}.font-brand{font-family:Orbitron,sans-serif}.bg-grid{background-size:40px 40px;background-image:linear-gradient(to right,rgba(239,68,68,.03) 1px,transparent 1px),linear-gradient(to bottom,rgba(239,68,68,.03) 1px,transparent 1px)}.glow-text{text-shadow:0 0 20px rgba(239,68,68,.6),0 0 40px rgba(239,68,68,.3)}.inp{width:100%;background:#000;border:1px solid #262626;border-radius:.75rem;padding:.75rem 1rem;color:#fff;outline:none;transition:.2s}.inp:focus{border-color:#ef4444;box-shadow:0 0 15px rgba(239,68,68,.15)}</style>
+</head>
+<body class="min-h-screen bg-grid relative flex items-center justify-center px-6 selection:bg-red-600">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-red-600/10 rounded-full blur-[150px] pointer-events-none"></div>
+<div class="relative z-10 w-full max-w-md bg-skcard/90 border border-skborder rounded-3xl p-8 shadow-2xl backdrop-blur-xl overflow-hidden">
+  <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-600 via-rose-500 to-red-800"></div>
+  <div class="flex items-center justify-center space-x-3 mb-8">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-red-900 flex items-center justify-center shadow-neon"><i class="fa-solid fa-crown text-white"></i></div>
+    <span class="font-brand font-black text-lg tracking-wider">SKWARE <span class="text-red-500">STUDIO</span></span>
+  </div>
+  <h1 class="font-brand font-black text-2xl text-center mb-1">ACCÈS <span class="text-red-500 glow-text">ADMIN</span></h1>
+  <p class="text-gray-500 text-xs text-center mb-6">Connecte-toi pour gérer les clés.</p>
+  <div id="err" class="hidden mb-4 text-xs font-semibold px-4 py-3 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20"></div>
+  <form id="f" class="space-y-4">
+    <div><label class="text-xs text-gray-400 font-semibold">Adresse email :</label><input id="email" type="email" required autocomplete="username" class="inp mt-1" placeholder="•••••••••••"></div>
+    <div><label class="text-xs text-gray-400 font-semibold">Mot de passe :</label><input id="pw" type="password" required autocomplete="current-password" class="inp mt-1" placeholder="•••••••••••"></div>
+    <button class="w-full py-4 rounded-xl bg-gradient-to-r from-red-600 to-red-700 font-brand font-bold text-sm tracking-wider shadow-neon hover:shadow-neon-lg transition-all"><i class="fa-solid fa-right-to-bracket mr-2"></i>SE CONNECTER</button>
+  </form>
+</div>
+<script>
+document.getElementById('f').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = document.getElementById('err'); err.classList.add('hidden');
+  const r = await fetch('/api/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:pw.value})});
+  const d = await r.json();
+  if (r.ok) location.href = '/dashboard'; else { err.textContent = d.error; err.classList.remove('hidden'); }
+});
+</script></body></html>
